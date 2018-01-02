@@ -1,0 +1,14 @@
+.idea/
+cmake-build-debug/
+cmake-build-release/
+*.tlog
+Debug/
+.vs/
+*.user
+*.VC.db
+__pycache__/
+*_error_message.txt
+
+x64/
+*.VC.opendb
+venv/
