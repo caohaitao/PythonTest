@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import tensorflow as tf
 import numpy as np
+from matplotlib import *
+import pylab as plt
 
 #参数：输入值，输入大小，输出大小，激励函数
 def add_layer(inputs,in_size,out_size,activation_function=None):
@@ -36,7 +38,7 @@ l1 = add_layer(xs,1,10,activation_function=tf.nn.relu)
 #增加一层layer，为输出层的layer，有10个输入，1个输出
 prediction = add_layer(l1,10,1,activation_function=None)
 
-#损失函数为 average(sum(y-y')^2),行求平均，当第二个参数为0时，对列求平均
+#损失函数为 average(sum(y-y')^2),行求平均，当第二个参数为0时，对列求平均，如果不指定则是对所有元素求平均
 loss = tf.reduce_mean(tf.reduce_sum(tf.square(ys-prediction),reduction_indices=[1]))
 #梯度下降训练，训练速率为0.1，对损失函数求最小
 train_step = tf.train.GradientDescentOptimizer(0.1).minimize(loss)
@@ -44,12 +46,28 @@ train_step = tf.train.GradientDescentOptimizer(0.1).minimize(loss)
 #初始化变量
 init = tf.global_variables_initializer()
 
+#创建绘图环境
+fig = plt.figure()
+ax = fig.add_subplot(1,1,1)
+ax.scatter(x_data,y_data)
+plt.ion()
+plt.show()
+
 #构造session
 sess = tf.Session()
 sess.run(init)
+
 
 #循环训练，输入为x_data，输出为y_data
 for i in range(1000):
     sess.run(train_step,feed_dict={xs:x_data,ys:y_data})
     if i%50 == 0:
-        print(sess.run(loss,feed_dict={xs:x_data,ys:y_data}))
+        #print(sess.run(loss,feed_dict={xs:x_data,ys:y_data}))
+        try:
+            ax.lines.remove(lines[0])
+        except Exception:
+            pass
+        prediction_value=sess.run(prediction,feed_dict={xs:x_data})
+        lines = ax.plot(x_data,prediction_value,'r-',lw=5)
+        plt.pause(1)
+
