@@ -36,7 +36,7 @@ def max_pool_2x2(x):
 # define placeholder for inputs to network
 #定义输入
 xs = tf.placeholder(tf.float32, [None, 784])/255.   # 28x28
-ys = tf.placeholder(tf.float32, [None, 10])
+# ys = tf.placeholder(tf.float32, [None, 10])
 #定义dropout的系数
 keep_prob = tf.placeholder(tf.float32)
 #定义输入的大小，-1代表不考虑输入图片例子多少个维度
@@ -82,44 +82,16 @@ b_fc2 = bias_variable([10])
 #激活函数使用softmax
 prediction = tf.nn.softmax(tf.matmul(h_fc1_drop, W_fc2) + b_fc2)
 
-
-# the error between prediction and real data
-#损失函数使用交叉熵
-cross_entropy = tf.reduce_mean(-tf.reduce_sum(ys * tf.log(prediction),
-                                              reduction_indices=[1]))       # loss
-#优化方法选用adam，使cross_entropy最小
-train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
-
+# ---------------------
+# 这里之前，全部跟构造跟构造模型时代码一模一样，只是缺少了模型的损失函数和优化损失部分
+# ，另外输出可以不用建立placeholder
 sess = tf.Session()
-# important step
-# tf.initialize_all_variables() no long valid from
-# 2017-03-02 if using tensorflow >= 0.12
-if int((tf.__version__).split('.')[1]) < 12 and int((tf.__version__).split('.')[0]) < 1:
-    init = tf.initialize_all_variables()
-else:
-    init = tf.global_variables_initializer()
-sess.run(init)
 
-# 创建一个saver，里面填写要保存的参数
 saver = tf.train.Saver([W_conv1,W_conv2,W_fc1,W_fc2,b_conv1,b_conv2,b_fc1,b_fc2])
 
-for i in range(1000):
-    batch_xs, batch_ys = mnist.train.next_batch(100)
-    sess.run(train_step, feed_dict={xs: batch_xs, ys: batch_ys, keep_prob: 0.5})
-    # if i % 50 == 0:
-    #     print(compute_accuracy(
-    #         mnist.test.images[:1000], mnist.test.labels[:1000]))
+saver.restore(sess,"d:\\tensor_model\\mnist_test")
 
-
-# batch_xs,batch_ys = mnist.train.next_batch(11)
-# y_pre = sess.run(prediction, feed_dict={xs: batch_xs, keep_prob: 1})
-# aaa=1+1
-
-
-model_dir = "d:\\tensor_model"
-model_name = "mnist_test"
-
-if not os.path.exists(model_dir):
-    os.mkdir(model_dir)
-# 保存模型
-res = saver.save(sess,os.path.join(model_dir,model_name))
+# 数据正确性验证
+batch_xs,batch_ys = mnist.train.next_batch(11)
+y_pre = sess.run(prediction, feed_dict={xs: batch_xs, keep_prob: 1})
+aaa=1+1
