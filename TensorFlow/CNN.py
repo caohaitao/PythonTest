@@ -2,6 +2,7 @@
 from __future__ import print_function
 import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
+import os
 # number 1 to 10 data
 mnist = input_data.read_data_sets('MNIST_data', one_hot=True)
 #测试准确率的函数
@@ -13,15 +14,15 @@ def compute_accuracy(v_xs, v_ys):
     result = sess.run(accuracy, feed_dict={xs: v_xs, ys: v_ys, keep_prob: 1})
     return result
 
-def weight_variable(shape):
+def weight_variable(shape,n):
     #产生正态分布随机数，标准差是0.1
     initial = tf.truncated_normal(shape, stddev=0.1)
-    return tf.Variable(initial)
+    return tf.Variable(initial,name=n)
 
-def bias_variable(shape):
+def bias_variable(shape,n):
     #创建一个常量张量，shape指定张量的维度
     initial = tf.constant(0.1, shape=shape)
-    return tf.Variable(initial)
+    return tf.Variable(initial,name=n)
 
 def conv2d(x, W):
     # stride [1, x_movement, y_movement, 1]
@@ -46,9 +47,9 @@ x_image = tf.reshape(xs, [-1, 28, 28, 1])
 
 ## conv1 layer ##
 #第一层卷积层，卷积核patch大小是5x5，通道数目1，输出32个featuremap
-W_conv1 = weight_variable([5,5, 1,32]) # patch 5x5, in size 1, out size 32
+W_conv1 = weight_variable([5,5, 1,32],"W_conv1") # patch 5x5, in size 1, out size 32
 #定义偏置为32个
-b_conv1 = bias_variable([32])
+b_conv1 = bias_variable([32],"b_conv1")
 #定义神经网络的第一个卷积层，公式为h_conv1=conv2d(x_image,W_conv1)+b_conv1
 #激活函数蚕蛹relu激活函数
 h_conv1 = tf.nn.relu(conv2d(x_image, W_conv1) + b_conv1) # output size 28x28x32
@@ -57,16 +58,16 @@ h_pool1 = max_pool_2x2(h_conv1)                                         # output
 
 ## conv2 layer ##
 #定义第二个卷积层
-W_conv2 = weight_variable([5,5, 32, 64]) # patch 5x5, in size 32, out size 64
-b_conv2 = bias_variable([64])
+W_conv2 = weight_variable([5,5, 32, 64],"W_conv2") # patch 5x5, in size 32, out size 64
+b_conv2 = bias_variable([64],"b_conv2")
 h_conv2 = tf.nn.relu(conv2d(h_pool1, W_conv2) + b_conv2) # output size 14x14x64
 h_pool2 = max_pool_2x2(h_conv2)                                         # output size 7x7x64
 
 ## fc1 layer ##
 #第一个全连接层，输入为第二个卷积层展平了的输出大小
 #输入为7x7x64，输出大小为1024
-W_fc1 = weight_variable([7*7*64, 1024])
-b_fc1 = bias_variable([1024])
+W_fc1 = weight_variable([7*7*64, 1024],"W_fc1")
+b_fc1 = bias_variable([1024],"b_fc1")
 # [n_samples, 7, 7, 64] ->> [n_samples, 7*7*64]
 #将数据从三维变成一维，-1表示先不考虑输入图片例子维度，将上一个输出结果展平
 h_pool2_flat = tf.reshape(h_pool2, [-1, 7*7*64])
@@ -76,10 +77,10 @@ h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)
 
 ## fc2 layer ##
 #定义第二个全连接层，输入为1024，输出为10，因为只有10个分类
-W_fc2 = weight_variable([1024, 10])
-b_fc2 = bias_variable([10])
+W_fc2 = weight_variable([1024, 10],"W_fc2")
+b_fc2 = bias_variable([10],"b_fc2")
 #激活函数使用softmax
-prediction = tf.nn.softmax(tf.matmul(h_fc1_drop, W_fc2) + b_fc2)
+prediction = tf.nn.softmax(tf.matmul(h_fc1_drop, W_fc2) + b_fc2,name="out")
 
 
 # the error between prediction and real data
@@ -99,9 +100,29 @@ else:
     init = tf.global_variables_initializer()
 sess.run(init)
 
+# 创建一个saver，里面填写要保存的参数
+# saver = tf.train.Saver([W_conv1,W_conv2,W_fc1,W_fc2,b_conv1,b_conv2,b_fc1,b_fc2])
+
 for i in range(1000):
     batch_xs, batch_ys = mnist.train.next_batch(100)
     sess.run(train_step, feed_dict={xs: batch_xs, ys: batch_ys, keep_prob: 0.5})
-    if i % 50 == 0:
-        print(compute_accuracy(
-            mnist.test.images[:1000], mnist.test.labels[:1000]))
+    # if i % 50 == 0:
+    #     print(compute_accuracy(
+    #         mnist.test.images[:1000], mnist.test.labels[:1000]))
+
+
+# batch_xs,batch_ys = mnist.train.next_batch(11)
+# y_pre = sess.run(prediction, feed_dict={xs: batch_xs, keep_prob: 1})
+# aaa=1+1
+
+# 保存模型为4个文件的形式
+# model_dir = "d:\\tensor_model"
+# model_name = "mnist_test"
+#
+# if not os.path.exists(model_dir):
+#     os.mkdir(model_dir)
+# # 保存模型
+# res = saver.save(sess,os.path.join(model_dir,model_name))
+
+graph = tf.graph_util.convert_variables_to_constants(sess,sess.graph_def,["out"])
+tf.train.write_graph(graph,'.','d:\\pbs\\Number.pb',as_text=False)
