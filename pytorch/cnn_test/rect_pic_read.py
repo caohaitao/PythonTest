@@ -33,6 +33,7 @@ def read_datas():
         print(len(files))
         #res = np.ndarray(shape=(len(files),1,width,height),dtype='float32')
         label = np.ndarray(shape=(len(files)),dtype='int64')
+        label2 = np.ndarray(shape=(len(files),1),dtype='float32')
         i = 0
         for item in files:
             file_path = format("%s%s"%(dir,item))
@@ -43,8 +44,9 @@ def read_datas():
             sl = item.replace('.jpg','')
             sls = sl.split('_')
             label[i] = int(sls[1])
+            label2[i] = float(sls[1])
             i = i+1
-    return res,label,w,h
+    return res,label,label2,w,h
 
 
 

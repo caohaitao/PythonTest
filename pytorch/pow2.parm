@@ -1,0 +1,6 @@
+7767517
+4 4
+Input            0                        0 1 0
+InnerProduct     5                        1 1 0 5 0=10 1=1 2=10
+ReLU             6                        1 1 5 6
+InnerProduct     7                        1 1 6 7 0=1 1=1 2=10
