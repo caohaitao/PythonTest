@@ -45,7 +45,7 @@ class CNN(nn.Module):
 
         out_one = int(int(width)/pow(2,3))
         self.out = nn.Linear(64 * out_one * out_one, 3)   # fully connected layer, output 10 classes
-        self.out2 = nn.Linear(64 * out_one * out_one, 1)
+        self.out2 = nn.Linear(64 * out_one * out_one, 2)
 
     def forward(self, x):
         x = self.conv1(x)
@@ -105,7 +105,7 @@ def test_cnn(cnn):
     count = len(out_put)
     for i in range(count):
         max_index = get_max_index(out_put[i])
-        s = format("%d-%d,%0.2f-%0.2f"%(torch_labels[i],max_index,torch_labels2[i],out_put2[i]))
+        s = format("%d-%d,%0.2f-%0.2f,%0.2f-%0.2f"%(torch_labels[i],max_index,torch_labels2[i][0],out_put2[i][0],torch_labels2[i][1],out_put2[i][1]))
         print(s)
 
 if __name__ == "__main__":

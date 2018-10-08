@@ -29,8 +29,7 @@ def create_a_pic(folder_path,r):
     y = random.randint(0,height-1)
     color_index = random.randint(0,2)
     draw.rectangle(((x-one_len/2, y-one_len/2), (x+one_len/2, y+one_len/2)), fill=(color_maps[color_index][0],color_maps[color_index][1],color_maps[color_index][2]))
-    pos = y*width+x
-    file_path = format("%s\\rect_%d_%d.jpg"%(folder_path,color_index,pos))
+    file_path = format("%s\\rect_%d_%d_%d.jpg"%(folder_path,color_index,x,y))
     img.save(file_path,'jpeg')
 
 if __name__ == "__main__":
