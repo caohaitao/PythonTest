@@ -27,8 +27,8 @@ def read_one_data2(file_path):
     img = img.transpose(0,1).transpose(0,2).contiguous()
     return img,w,h
 
-def read_datas():
-    dir = 'data\\'
+def read_datas(dir):
+    #dir = 'data\\'
     for (root,dirs,files) in os.walk(dir):
         print(len(files))
         #res = np.ndarray(shape=(len(files),1,width,height),dtype='float32')
@@ -44,7 +44,7 @@ def read_datas():
             sl = item.replace('.jpg','')
             sls = sl.split('_')
             label[i] = int(sls[1])
-            label2[i] = float(sls[1])
+            label2[i] = float(sls[2])
             i = i+1
     return res,label,label2,w,h
 

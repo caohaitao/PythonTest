@@ -43,7 +43,7 @@ class CNN(nn.Module):
         )
 
         out_one = int(int(width)/pow(2,3))
-        self.out = nn.Linear(64 * out_one * out_one, 64)   # fully connected layer, output 10 classes
+        self.out = nn.Linear(64 * out_one * out_one, 3)   # fully connected layer, output 10 classes
         self.out2 = nn.Linear(64 * out_one * out_one, 1)
 
     def forward(self, x):
@@ -87,8 +87,21 @@ def get_max_index(row):
         i = i+1
     return res
 
+def test_cnn():
+    datas,labels,labels2,w,h=read_datas("test\\")
+    torch_datas = torch.from_numpy(datas)
+    torch_labels = torch.from_numpy(labels)
+    torch_labels2 = torch.from_numpy(labels2)
+    out_put,out_put2 = cnn(torch_datas)
+
+    count = len(out_put)
+    for i in range(count):
+        max_index = get_max_index(out_put[i])
+        s = format("%d-%d,%0.2f-%0.2f"%(torch_labels[i],max_index,torch_labels2[i],out_put2[i]))
+        print(s)
+
 if __name__ == "__main__":
-    datas,labels,labels2,w,h=read_datas()
+    datas,labels,labels2,w,h=read_datas("data\\")
     torch_datas = torch.from_numpy(datas)
     torch_labels = torch.from_numpy(labels)
     torch_labels2 = torch.from_numpy(labels2)
@@ -98,12 +111,6 @@ if __name__ == "__main__":
     else:
         cnn = torch.load(pkl_name)
 
-    out_put,out_put2 = cnn(torch_datas)
-
-    count = len(out_put)
-    for i in range(count):
-        max_index = get_max_index(out_put[i])
-        s = format("%d-%d,%0.2f-%0.2f"%(torch_labels[i],max_index,torch_labels2[i],out_put2[i]))
-        print(s)
+    test_cnn()
 
 
