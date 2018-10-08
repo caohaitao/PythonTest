@@ -9,6 +9,7 @@ import cv2
 import numpy as np
 import os
 from rect_pic_read import read_datas
+import sys
 
 EPOCH = 300              # train the training data n times, to save time, we just train 1 epoch
 BATCH_SIZE = 50
@@ -55,8 +56,15 @@ class CNN(nn.Module):
         output2 = self.out2(x)
         return output,output2    # return x for visualization
 
-def train_model(width,height,torch_datas,torch_labels,torch_labels2):
-    cnn = CNN(width,height)
+def train_model():
+    datas,labels,labels2,width,height=read_datas("data\\")
+    torch_datas = torch.from_numpy(datas)
+    torch_labels = torch.from_numpy(labels)
+    torch_labels2 = torch.from_numpy(labels2)
+    if os.path.exists(pkl_name):
+        cnn = torch.load(pkl_name)
+    else:
+        cnn = CNN(width,height)
     print(cnn)
     optimizer = torch.optim.Adam(cnn.parameters(), lr=LR)   # optimize all cnn parameters
     loss_func = nn.CrossEntropyLoss()                       # the target label is not one-hotted
@@ -65,8 +73,8 @@ def train_model(width,height,torch_datas,torch_labels,torch_labels2):
         output,out_put2 = cnn(torch_datas)
         loss1 = loss_func(output,torch_labels)
         loss2 = loss_func2(out_put2,torch_labels2)
-        loss = loss1+loss2
-        if loss<0.001:
+        loss = 0.5*loss1+0.5*loss2
+        if loss<0.0005:
             break
         print('epoch=%d loss1=%0.4f,loss2=%0.4f,loss=%0.4f'%(epoch,loss1,loss2,loss))
         optimizer.zero_grad()
@@ -87,7 +95,7 @@ def get_max_index(row):
         i = i+1
     return res
 
-def test_cnn():
+def test_cnn(cnn):
     datas,labels,labels2,w,h=read_datas("test\\")
     torch_datas = torch.from_numpy(datas)
     torch_labels = torch.from_numpy(labels)
@@ -101,16 +109,16 @@ def test_cnn():
         print(s)
 
 if __name__ == "__main__":
-    datas,labels,labels2,w,h=read_datas("data\\")
-    torch_datas = torch.from_numpy(datas)
-    torch_labels = torch.from_numpy(labels)
-    torch_labels2 = torch.from_numpy(labels2)
+    if len(sys.argv)<2:
+        print("please input param [train|test]")
+        exit()
 
-    if not os.path.exists(pkl_name):
-        cnn = train_model(w,h,torch_datas,torch_labels,torch_labels2)
-    else:
+    if sys.argv[1]=="train":
+        cnn = train_model()
+    elif sys.argv[1]=="test":
         cnn = torch.load(pkl_name)
 
-    test_cnn()
+    test_cnn(cnn)
+
 
 

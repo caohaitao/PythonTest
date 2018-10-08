@@ -16,12 +16,21 @@ def create_a_pic(folder_path,r):
 
     img = Image.new('RGB',(width,height),(255,255,255))
     draw = ImageDraw.Draw(img)
-    one_len=int(width/one_row_nums)
-    x = int(int(r)%int(one_row_nums))
-    y = int(int(r)/int(one_row_nums))
+    # one_len=int(width/one_row_nums)
+    # x = int(int(r)%int(one_row_nums))
+    # y = int(int(r)/int(one_row_nums))
+    # color_index = random.randint(0,2)
+    # draw.rectangle(((x*one_len, y*one_len), (x*one_len+one_len, y*one_len+one_len)), fill=(color_maps[color_index][0],color_maps[color_index][1],color_maps[color_index][2]))
+    # file_path = format("%s\\rect_%d_%d.jpg"%(folder_path,color_index,r))
+    # img.save(file_path,'jpeg')
+
+    one_len = 4
+    x = random.randint(0,width-1)
+    y = random.randint(0,height-1)
     color_index = random.randint(0,2)
-    draw.rectangle(((x*one_len, y*one_len), (x*one_len+one_len, y*one_len+one_len)), fill=(color_maps[color_index][0],color_maps[color_index][1],color_maps[color_index][2]))
-    file_path = format("%s\\rect_%d_%d.jpg"%(folder_path,color_index,r))
+    draw.rectangle(((x-one_len/2, y-one_len/2), (x+one_len/2, y+one_len/2)), fill=(color_maps[color_index][0],color_maps[color_index][1],color_maps[color_index][2]))
+    pos = y*width+x
+    file_path = format("%s\\rect_%d_%d.jpg"%(folder_path,color_index,pos))
     img.save(file_path,'jpeg')
 
 if __name__ == "__main__":
