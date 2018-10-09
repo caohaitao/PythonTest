@@ -46,14 +46,22 @@ class CNN(nn.Module):
             nn.MaxPool2d(2),                # output shape (64, 20, 20)
         )
 
-        out_one = int(int(width)/pow(2,3))
-        self.out = nn.Linear(32 * out_one * out_one, 3)   # fully connected layer, output 10 classes
-        self.out2 = nn.Linear(32 * out_one * out_one, 2)
+        self.conv4 = nn.Sequential(
+            nn.Conv2d(32,64,5,1,2),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.MaxPool2d(2),
+        )
+
+        out_one = int(int(width)/pow(2,4))
+        self.out = nn.Linear(64 * out_one * out_one, 3)   # fully connected layer, output 10 classes
+        self.out2 = nn.Linear(64 * out_one * out_one, 2)
 
     def forward(self, x):
         x = self.conv1(x)
         x = self.conv2(x)
         x = self.conv3(x)
+        x = self.conv4(x)
         x = x.view(x.size(0), -1)           # flatten the output of conv2 to (batch_size, 128 * 10 * 10)
         output = self.out(x)
         output2 = self.out2(x)
