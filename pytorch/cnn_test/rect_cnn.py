@@ -10,12 +10,15 @@ import numpy as np
 import os
 from rect_pic_read import read_datas
 import sys
+import CHTCommon.LossShow as LossShow
 
-EPOCH = 300              # train the training data n times, to save time, we just train 1 epoch
+EPOCH = 1000              # train the training data n times, to save time, we just train 1 epoch
 BATCH_SIZE = 50
 LR = 0.001              # 学习率
 
 pkl_name = "rect_color.pkl"
+
+is_draw = False
 
 class CNN(nn.Module):
     def __init__(self,width,height):
@@ -68,6 +71,9 @@ class CNN(nn.Module):
         return output,output2    # return x for visualization
 
 def train_model():
+    ls = LossShow.LossShow(3,["red","blue","green"],["loss1","loss2","loss"])
+    ls.plt_init()
+
     datas,labels,labels2,width,height=read_datas("data\\")
     torch_datas = torch.from_numpy(datas)
     torch_labels = torch.from_numpy(labels)
@@ -84,15 +90,20 @@ def train_model():
         output,out_put2 = cnn(torch_datas)
         loss1 = loss_func(output,torch_labels)
         loss2 = loss_func2(out_put2,torch_labels2)
-        loss = 0.5*loss1+0.5*loss2
+        loss = loss1+0.01*loss2
         if loss<0.0005:
             break
+        ls.show([loss1,0.01*loss2,loss])
+
         print('epoch=%d loss1=%0.4f,loss2=%0.4f,loss=%0.4f'%(epoch,loss1,loss2,loss))
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
 
     torch.save(cnn,pkl_name)
+
+    ls.stop()
+
     return cnn
 
 def get_max_index(row):
@@ -123,6 +134,11 @@ if __name__ == "__main__":
     if len(sys.argv)<2:
         print("please input param [train|test]")
         exit()
+
+    if len(sys.argv) >2:
+        if sys.argv[2] == "draw":
+            is_draw = True
+
 
     if sys.argv[1]=="train":
         cnn = train_model()

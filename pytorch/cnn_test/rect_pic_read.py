@@ -44,8 +44,8 @@ def read_datas(dir):
             sl = item.replace('.jpg','')
             sls = sl.split('_')
             label[i] = int(sls[1])
-            label2[i][0] = float(sls[2])/32.0
-            label2[i][1] = float(sls[3])/32.0
+            label2[i][0] = float(sls[2])
+            label2[i][1] = float(sls[3])
             i = i+1
     return res,label,label2,w,h
 
