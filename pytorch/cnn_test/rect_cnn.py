@@ -23,29 +23,32 @@ class CNN(nn.Module):
         self.conv1 = nn.Sequential(         # input shape (1, 160, 160)
             nn.Conv2d(
                 in_channels=3,              # input height
-                out_channels=16,            # n_filters
+                out_channels=8,            # n_filters
                 kernel_size=5,              # filter size
                 stride=1,                   # filter movement/step
                 padding=2,                  # if want same width and length of this image after con2d, padding=(kernel_size-1)/2 if stride=1
             ),                              # output shape (16, 160, 160)
+            nn.BatchNorm2d(8),
             nn.ReLU(),                      # activation
             nn.MaxPool2d(kernel_size=2),    # choose max value in 2x2 area, output shape (16, 80, 80)
         )
         self.conv2 = nn.Sequential(         # input shape (16, 80, 80)
-            nn.Conv2d(16, 32, 5, 1, 2),     # output shape (32, 80, 80)
+            nn.Conv2d(8, 16, 5, 1, 2),     # output shape (32, 80, 80)
+            nn.BatchNorm2d(16),
             nn.ReLU(),                      # activation
             nn.MaxPool2d(2),                # output shape (32, 40, 40)
         )
 
         self.conv3 = nn.Sequential(         # input shape (32, 40, 40)
-            nn.Conv2d(32, 64, 5, 1, 2),     # output shape (64, 40, 40)
+            nn.Conv2d(16, 32, 5, 1, 2),     # output shape (64, 40, 40)
+            nn.BatchNorm2d(32),
             nn.ReLU(),                      # activation
             nn.MaxPool2d(2),                # output shape (64, 20, 20)
         )
 
         out_one = int(int(width)/pow(2,3))
-        self.out = nn.Linear(64 * out_one * out_one, 3)   # fully connected layer, output 10 classes
-        self.out2 = nn.Linear(64 * out_one * out_one, 2)
+        self.out = nn.Linear(32 * out_one * out_one, 3)   # fully connected layer, output 10 classes
+        self.out2 = nn.Linear(32 * out_one * out_one, 2)
 
     def forward(self, x):
         x = self.conv1(x)
@@ -95,7 +98,7 @@ def get_max_index(row):
         i = i+1
     return res
 
-def test_cnn(cnn):
+def cnn_test(cnn):
     datas,labels,labels2,w,h=read_datas("test\\")
     torch_datas = torch.from_numpy(datas)
     torch_labels = torch.from_numpy(labels)
@@ -118,7 +121,7 @@ if __name__ == "__main__":
     elif sys.argv[1]=="test":
         cnn = torch.load(pkl_name)
 
-    test_cnn(cnn)
+    cnn_test(cnn)
 
 
 
