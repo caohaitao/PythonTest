@@ -27,30 +27,30 @@ class CNN(nn.Module):
             nn.Conv2d(
                 in_channels=3,              # input height
                 out_channels=8,            # n_filters
-                kernel_size=5,              # filter size
+                kernel_size=3,              # filter size
                 stride=1,                   # filter movement/step
-                padding=2,                  # if want same width and length of this image after con2d, padding=(kernel_size-1)/2 if stride=1
+                padding=1,                  # if want same width and length of this image after con2d, padding=(kernel_size-1)/2 if stride=1
             ),                              # output shape (16, 160, 160)
             nn.BatchNorm2d(8),
             nn.ReLU(),                      # activation
             nn.MaxPool2d(kernel_size=2),    # choose max value in 2x2 area, output shape (16, 80, 80)
         )
         self.conv2 = nn.Sequential(         # input shape (16, 80, 80)
-            nn.Conv2d(8, 16, 5, 1, 2),     # output shape (32, 80, 80)
+            nn.Conv2d(8, 16, 3, 1, 1),     # output shape (32, 80, 80)
             nn.BatchNorm2d(16),
             nn.ReLU(),                      # activation
             nn.MaxPool2d(2),                # output shape (32, 40, 40)
         )
 
         self.conv3 = nn.Sequential(         # input shape (32, 40, 40)
-            nn.Conv2d(16, 32, 5, 1, 2),     # output shape (64, 40, 40)
+            nn.Conv2d(16, 32, 3, 1, 1),     # output shape (64, 40, 40)
             nn.BatchNorm2d(32),
             nn.ReLU(),                      # activation
             nn.MaxPool2d(2),                # output shape (64, 20, 20)
         )
 
         self.conv4 = nn.Sequential(
-            nn.Conv2d(32,64,5,1,2),
+            nn.Conv2d(32,64,3,1,1),
             nn.BatchNorm2d(64),
             nn.ReLU(),
             nn.MaxPool2d(2),
