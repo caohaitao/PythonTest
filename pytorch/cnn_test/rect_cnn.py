@@ -93,7 +93,7 @@ def train_model():
         loss = loss1+0.01*loss2
         if loss<0.0005:
             break
-        ls.show([loss1,0.01*loss2,loss])
+        ls.show([loss1.detach().numpy(),0.01*loss2.detach().numpy(),loss.detach().numpy()])
 
         print('epoch=%d loss1=%0.4f,loss2=%0.4f,loss=%0.4f'%(epoch,loss1,loss2,loss))
         optimizer.zero_grad()
