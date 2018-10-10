@@ -65,7 +65,7 @@ class CNN(nn.Module):
         )
 
         out_one = int(int(width)/pow(2,4))
-        self.out = nn.Linear(64 * out_one * out_one, 12)   # fully connected layer, output 10 classes
+        self.out = nn.Linear(64 * out_one * out_one, 24)   # fully connected layer, output 10 classes
 
     def forward(self, x):
         x = self.conv1(x)
@@ -97,6 +97,9 @@ def train_model():
     loss_func2 = torch.nn.MSELoss()
     for epoch in range(EPOCH):
         output = cnn(torch_datas)
+
+        lll = torch.split(output,[4,2,4,2,4,2,4,2],1)
+
         loss = loss_func2(output,torch_labels)
         if loss<0.0005:
             break
