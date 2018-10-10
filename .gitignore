@@ -18,3 +18,4 @@ venv/
 /TensorFlow/MyTest/output
 /pytorch/hand/mnist
 /tensorFlowRealTrack/MINIST_data
+*.label

@@ -25,11 +25,34 @@ def create_a_pic(folder_path,r):
     # img.save(file_path,'jpeg')
 
     one_len = 4
-    x = random.randint(0,width-1)
-    y = random.randint(0,height-1)
-    color_index = random.randint(0,2)
-    draw.rectangle(((x-one_len/2, y-one_len/2), (x+one_len/2, y+one_len/2)), fill=(color_maps[color_index][0],color_maps[color_index][1],color_maps[color_index][2]))
-    file_path = format("%s\\rect_%d_%d_%d.jpg"%(folder_path,color_index,x,y))
+
+    file_path = format("%s\\rect_%d.jpg" % (folder_path, r))
+    label_path = format("%s\\rect_%d.label" % (folder_path , r))
+    label_file = open(label_path,'w+')
+
+    for i in range(4):
+        class_type = 0.0
+        x = 0.0
+        y = 0.0
+        b = random.randint(0,1)
+        if b != 0:
+            x_zero = int(i%2)*width/2
+            y_zero = int(i/2)*height/2
+
+            x = random.randint(0, (width/2)-1) + x_zero
+            y = random.randint(0, (height/2) - 1) + y_zero
+
+            color_index = random.randint(0,2)
+            draw.rectangle(((x-one_len/2, y-one_len/2), (x+one_len/2, y+one_len/2)), fill=(color_maps[color_index][0],color_maps[color_index][1],color_maps[color_index][2]))
+            class_type = color_index+1
+
+        str = format("%0.3f,%0.3f,%0.3f"%(class_type,x,y))
+        label_file.write(str)
+        if i != 3:
+            label_file.write(",")
+
+    label_file.close()
+
     img.save(file_path,'jpeg')
 
 if __name__ == "__main__":
@@ -37,11 +60,10 @@ if __name__ == "__main__":
         os.mkdir("data\\")
     # for i in range(one_row_nums*one_row_nums):
     #     create_a_pic("data",i)
-    for i in range(1000):
-        a = random.randint(0,one_row_nums*one_row_nums-1)
-        create_a_pic("data",a)
+    for i in range(100):
+        create_a_pic("data",i)
 
     if not os.path.exists("test\\"):
         os.mkdir("test\\")
-    for i in range(one_row_nums*one_row_nums):
+    for i in range(50):
         create_a_pic("test",i)

@@ -49,8 +49,35 @@ def read_datas(dir):
             i = i+1
     return res,label,label2,w,h
 
+def read_datas2(dir):
+    for (root,dirs,files) in os.walk(dir):
+        print(len(files))
+        count = int(len(files)/2)
+        label = np.ndarray(shape=(count,12),dtype='float32')
+        i = 0
+        for item in files:
+            if item.find('.jpg') == -1:
+                continue
+            file_path = format("%s\%s"%(dir,item))
+            r,w,h = read_one_data2(file_path)
+            if i==0:
+                res = np.ndarray(shape=(count,3,w,h),dtype='float32')
+            res[i] = r
+            label_path = file_path.replace('.jpg','')
+            label_path = label_path+".label"
+            label_file = open(label_path,'r')
+            line = label_file.readline()
+            label_file.close()
+            ds = line.split(',')
+            if len(ds) != 12:
+                continue
+            for j in range(12):
+                label[i][j] = ds[j]
+            i = i + 1
+    return res,label,w,h
 
 
 # if __name__ == "__main__":
 #     #read_datas()
-#     read_one_data2()
+#     #read_one_data2()
+#     read_datas2(r"D:\code\PythonCode\PythonTest\pytorch\cnn_test\data")
