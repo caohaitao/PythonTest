@@ -10,11 +10,15 @@ import numpy as np
 import os
 from rect_pic_read import read_datas2
 import sys
+from torch.autograd import Variable
 import CHTCommon.LossShow as LossShow
 
 EPOCH = 1000              # train the training data n times, to save time, we just train 1 epoch
 BATCH_SIZE = 50
 LR = 0.001              # 学习率
+
+GPUID = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = GPUID
 
 pkl_name = "rect_color2.pkl"
 
@@ -75,10 +79,14 @@ def train_model():
     datas,labels,width,height=read_datas2("data\\")
     torch_datas = torch.from_numpy(datas)
     torch_labels = torch.from_numpy(labels)
+
+    torch_datas = Variable(torch_datas.cuda())
+    torch_labels = Variable(torch_labels.cuda())
+
     if os.path.exists(pkl_name):
-        cnn = torch.load(pkl_name)
+        cnn = torch.load(pkl_name).cuda()
     else:
-        cnn = CNN(width,height)
+        cnn = CNN(width,height).cuda()
     print(cnn)
     optimizer = torch.optim.Adam(cnn.parameters(), lr=LR)   # optimize all cnn parameters
     loss_func = nn.CrossEntropyLoss()                       # the target label is not one-hotted
@@ -88,7 +96,7 @@ def train_model():
         loss = loss_func2(output,torch_labels)
         if loss<0.0005:
             break
-        ls.show([loss.detach().numpy()])
+        ls.show([loss.cpu().detach().numpy()])
 
         print('epoch=%d loss=%0.4f'%(epoch,loss))
         optimizer.zero_grad()
@@ -116,10 +124,14 @@ def cnn_test(cnn):
     datas,labels,w,h=read_datas2("test\\")
     torch_datas = torch.from_numpy(datas)
     torch_labels = torch.from_numpy(labels)
+
+    torch_datas = Variable(torch_datas.cuda())
+    torch_labels = Variable(torch_labels.cuda())
+
     out_put = cnn(torch_datas)
 
-    numpy_labels = torch_labels.detach().numpy()
-    numpy_outs = out_put.detach().numpy()
+    numpy_labels = torch_labels.cpu().detach().numpy()
+    numpy_outs = out_put.cpu().detach().numpy()
 
     count = len(numpy_outs)
     for i in range(count):
@@ -128,6 +140,7 @@ def cnn_test(cnn):
             print("%d %0.4f-%0.4f"%(j,numpy_labels[i][j],numpy_outs[i][j]))
 
 if __name__ == "__main__":
+    print(torch.cuda.is_available())
     if len(sys.argv)<2:
         print("please input param [train|test]")
         exit()
@@ -140,7 +153,7 @@ if __name__ == "__main__":
     if sys.argv[1]=="train":
         cnn = train_model()
     elif sys.argv[1]=="test":
-        cnn = torch.load(pkl_name)
+        cnn = torch.load(pkl_name).cuda()
 
     cnn_test(cnn)
 

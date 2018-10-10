@@ -3,6 +3,7 @@ from PIL import Image
 import sys
 import numpy as np
 
+
 def rgb_to_gray(pixel):
     return int(0.39*pixel[0]+0.5*pixel[1]+0.11*pixel[2])
 
