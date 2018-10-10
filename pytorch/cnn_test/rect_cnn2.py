@@ -12,6 +12,7 @@ from rect_pic_read import read_datas2
 import sys
 from torch.autograd import Variable
 import CHTCommon.LossShow as LossShow
+import math
 
 EPOCH = 1000              # train the training data n times, to save time, we just train 1 epoch
 BATCH_SIZE = 50
@@ -24,6 +25,9 @@ pkl_name = "rect_color2.pkl"
 
 is_draw = False
 
+conv_kernel_size=5
+conv_padding=2
+
 class CNN(nn.Module):
     def __init__(self,width,height):
         super(CNN, self).__init__()
@@ -31,30 +35,30 @@ class CNN(nn.Module):
             nn.Conv2d(
                 in_channels=3,              # input height
                 out_channels=8,            # n_filters
-                kernel_size=3,              # filter size
+                kernel_size=conv_kernel_size,              # filter size
                 stride=1,                   # filter movement/step
-                padding=1,                  # if want same width and length of this image after con2d, padding=(kernel_size-1)/2 if stride=1
+                padding=conv_padding,                  # if want same width and length of this image after con2d, padding=(kernel_size-1)/2 if stride=1
             ),                              # output shape (16, 160, 160)
             nn.BatchNorm2d(8),
             nn.ReLU(),                      # activation
             nn.MaxPool2d(kernel_size=2),    # choose max value in 2x2 area, output shape (16, 80, 80)
         )
         self.conv2 = nn.Sequential(         # input shape (16, 80, 80)
-            nn.Conv2d(8, 16, 3, 1, 1),     # output shape (32, 80, 80)
+            nn.Conv2d(8, 16, conv_kernel_size, 1, conv_padding),     # output shape (32, 80, 80)
             nn.BatchNorm2d(16),
             nn.ReLU(),                      # activation
             nn.MaxPool2d(2),                # output shape (32, 40, 40)
         )
 
         self.conv3 = nn.Sequential(         # input shape (32, 40, 40)
-            nn.Conv2d(16, 32, 3, 1, 1),     # output shape (64, 40, 40)
+            nn.Conv2d(16, 32, conv_kernel_size, 1, conv_padding),     # output shape (64, 40, 40)
             nn.BatchNorm2d(32),
             nn.ReLU(),                      # activation
             nn.MaxPool2d(2),                # output shape (64, 20, 20)
         )
 
         self.conv4 = nn.Sequential(
-            nn.Conv2d(32,64,3,1,1),
+            nn.Conv2d(32,64,conv_kernel_size,1,conv_padding),
             nn.BatchNorm2d(64),
             nn.ReLU(),
             nn.MaxPool2d(2),
@@ -133,11 +137,33 @@ def cnn_test(cnn):
     numpy_labels = torch_labels.cpu().detach().numpy()
     numpy_outs = out_put.cpu().detach().numpy()
 
+    whole_label_count=0
+    right_label_count=0
+
+    x_whole_sub = 0
+    y_whole_sub = 0
     count = len(numpy_outs)
     for i in range(count):
         count2 = len(numpy_outs[i])
         for j in range(count2):
-            print("%d %0.4f-%0.4f"%(j,numpy_labels[i][j],numpy_outs[i][j]))
+            if j%3 == 0:
+                sub = math.fabs(numpy_labels[i][j]-numpy_outs[i][j])
+                if sub<0.5:
+                    right_label_count = right_label_count+1
+                whole_label_count = whole_label_count+1
+                print("label %0.4f-%0.4f sub=%0.4f"%(numpy_labels[i][j],numpy_outs[i][j],sub))
+            elif j%3 == 1:
+                sub = math.fabs(numpy_labels[i][j]-numpy_outs[i][j])
+                x_whole_sub = x_whole_sub+sub
+                print("x %0.4f-%0.4f sub=%0.4f"%(numpy_labels[i][j],numpy_outs[i][j],sub))
+            elif j%3 == 2:
+                sub = math.fabs(numpy_labels[i][j]-numpy_outs[i][j])
+                y_whole_sub = y_whole_sub+sub
+                print("y %0.4f-%0.4f sub=%0.4f"%(numpy_labels[i][j],numpy_outs[i][j],sub))
+
+    print("label right percent%0.4f"%(float(right_label_count)/float(whole_label_count)))
+    print("x avg sub=%0.4f"%(float(x_whole_sub)/float(whole_label_count)))
+    print("y avg sub=%0.4f"%(float(y_whole_sub)/float(whole_label_count)))
 
 if __name__ == "__main__":
     print(torch.cuda.is_available())
