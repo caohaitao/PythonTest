@@ -11,7 +11,7 @@ import os
 
 GPUID = "0"
 os.environ["CUDA_VISIBLE_DEVICES"] = GPUID
-IS_DOWN_LOAD = False
+IS_DOWN_LOAD = True
 
 ###############数据加载与预处理
 transform = transforms.Compose([transforms.ToTensor(),#转为tensor

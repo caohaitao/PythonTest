@@ -10,7 +10,7 @@ import numpy as np
 import os
 from rect_pic_read import read_datas2
 import sys
-import CHTCommon.LossShow as LossShow
+import LossShow
 
 EPOCH = 1000              # train the training data n times, to save time, we just train 1 epoch
 BATCH_SIZE = 50
