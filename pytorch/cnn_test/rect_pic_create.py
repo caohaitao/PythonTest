@@ -60,7 +60,7 @@ if __name__ == "__main__":
         os.mkdir("data\\")
     # for i in range(one_row_nums*one_row_nums):
     #     create_a_pic("data",i)
-    for i in range(100):
+    for i in range(10):
         create_a_pic("data",i)
 
     if not os.path.exists("test\\"):

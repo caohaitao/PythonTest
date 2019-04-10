@@ -19,3 +19,4 @@ venv/
 /pytorch/hand/mnist
 /tensorFlowRealTrack/MINIST_data
 *.label
+/pytorch/int8/inputs
