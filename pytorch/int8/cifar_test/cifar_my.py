@@ -6,6 +6,7 @@ import torch
 import torch.nn as nn
 import torch.utils.data as tdata
 import random
+import torch.nn.functional as F
 
 GPUID = "0,1"
 os.environ["CUDA_VISIBLE_DEVICES"] = GPUID
@@ -13,7 +14,7 @@ pkl_name = "class_my.pkl"
 
 EPOCH = 1000              # train the training data n times, to save time, we just train 1 epoch
 BATCH_SIZE = 10
-LR = 0.0001              # 学习率
+LR = 0.01              # 学习率
 
 
 gmean = [0.40041953, 0.35345662, 0.32371968]
@@ -63,7 +64,9 @@ def read_whole_datas(root_dir,nums):
         labels[i] = d[4]
     return res,labels
 
-cfg = [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 'M', 512, 512, 512, 'M']
+
+
+cfg = [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 'M', 512, 512, 512, 'M', 512, 512, 512, 'M']
 class cnn_class(nn.Module):
     def __init__(self):
         super(cnn_class,self).__init__()
@@ -81,7 +84,7 @@ class cnn_class(nn.Module):
         self.features = nn.Sequential(*layers)
 
         self.fc = nn.Sequential(
-            nn.Linear(2048, 500),
+            nn.Linear(512, 500),
             nn.ReLU(),
             nn.Linear(500,10)
         )
@@ -91,6 +94,7 @@ class cnn_class(nn.Module):
         convs = convs.view(convs.size(0),-1)
         out = self.fc(convs)
         return out
+
 
 def train_model():
     if os.path.exists(pkl_name):
@@ -131,7 +135,7 @@ def train_model():
 
             avg_loss /= step
             print("while(%d) epoch(%d) avg_loss(%0.6f)" %(i,epoch, avg_loss))
-            if avg_loss < 0.001:
+            if avg_loss < 0.01:
                 break
 
             if epoch%10 == 0:
@@ -141,3 +145,5 @@ def train_model():
 
 if __name__=='__main__':
     train_model()
+
+
