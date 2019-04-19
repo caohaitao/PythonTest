@@ -20,3 +20,6 @@ venv/
 /tensorFlowRealTrack/MINIST_data
 *.label
 /pytorch/int8/inputs
+/pytorch/*.pkl
+*.pkl
+/pytorch/int8/cifar_test/cifar
