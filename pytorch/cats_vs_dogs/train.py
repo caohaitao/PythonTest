@@ -6,11 +6,15 @@ import torch.nn as nn
 import torch.onnx
 from torchnet import meter
 from torch.autograd import Variable
+from log import *
+import time
 
 pkl_name = "cats_vs_dogs.pkl"
 EPOCH = 32
 BATCH_SIZE = 8
 img_root = r'E:\tensorflow_datas\cats_vs_dogs\train'
+
+logger = None
 
 def val(model,dataloader):
     model.eval()
@@ -31,17 +35,38 @@ def val(model,dataloader):
                (cm_value.sum())
     return confusion_matrix, accuracy
 
+def save_lr(lr):
+    global logger
+    f = open("lr.txt","w+")
+    s = format("%0.7f"%lr)
+    f.writelines(s)
+    logger.info("save lr(%0.7f) success"%lr)
+
+def get_lr():
+    global logger
+    if not os.path.exists("lr.txt"):
+        logger.info("not find lr.txt return 0.001")
+        return 0.001
+    else:
+        f = open("lr.txt",'r')
+        s = f.read()
+        f.close()
+        logger.info("get lr(%s) form lr.txt success"%s)
+        return float(s)
 
 def train():
-    print("cuda:", torch.cuda.is_available())
+    global logger
+    logger.info("train begin,cuda(%d)"%torch.cuda.is_available())
     if os.path.exists(pkl_name):
         cnn = torch.load(pkl_name).cuda()
+        logger.info("load model(%s) success"%pkl_name)
     else:
         cnn = resnet50().cuda()
+        logger.info("new model success")
 
     print(cnn)
 
-    lr = 0.001  # 学习率
+    lr = get_lr()
     optimizer = torch.optim.Adam(cnn.parameters(), lr=lr)
     loss_func = torch.nn.CrossEntropyLoss()
 
@@ -89,25 +114,29 @@ def train():
             confusion_matrix.add(s, t)
 
         torch.save(cnn,pkl_name)
+        logger.info("save model(%s) success"%pkl_name)
 
         val_cm,val_accuracy = val(cnn,val_dataloader)
-        print("epoch(%d) loss(%0.6f) train_cm(%s) val_cm(%s) val_accuracy(%0.4f)"%(
-            epoch,loss_meter.value()[0],
-            str(val_cm.value()),
-            str(confusion_matrix.value()),
-            val_accuracy
-        ))
+        logger.info("epoch(%d) loss(%0.6f) val_accuracy(%0.4f)"
+                    %(epoch,loss_meter.value()[0],val_accuracy))
+        logger.info("train_cm")
+        logger.info(val_cm.value())
+        logger.info("val_cm")
+        logger.info(confusion_matrix.value())
 
         if loss_meter.value()[0] > previous_loss:
-            print("lr change from %0.4f -> %0.4f"%(lr,lr*0.95))
+            logger.info("lr change from %0.4f -> %0.4f"%(lr,lr*0.95))
             lr = lr * 0.95
+            save_lr(lr)
             for param_group in optimizer.param_groups:
                 param_group['lr'] = lr
 
         previous_loss = loss_meter.value()[0]
 
 if __name__=='__main__':
+    logger = Logger(logname='cats_vs_dogs.log', loglevel=1, logger="fox").getlog()
     train()
+
 
 
 
