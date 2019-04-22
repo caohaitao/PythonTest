@@ -120,9 +120,9 @@ def train():
         logger.info("epoch(%d) loss(%0.6f) val_accuracy(%0.4f)"
                     %(epoch,loss_meter.value()[0],val_accuracy))
         logger.info("train_cm")
-        logger.info(val_cm.value())
+        logger.info("\n%s"%confusion_matrix.value())
         logger.info("val_cm")
-        logger.info(confusion_matrix.value())
+        logger.info("\n%s"%val_cm.value())
 
         if loss_meter.value()[0] > previous_loss:
             logger.info("lr change from %0.4f -> %0.4f"%(lr,lr*0.95))
