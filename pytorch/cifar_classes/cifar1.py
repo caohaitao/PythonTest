@@ -10,8 +10,8 @@ import numpy as np
 import os
 
 EPOCH = 50
-IS_DOWN_LOAD = False
-model_name = format("cifar_model.pkl")
+IS_DOWN_LOAD = True
+model_name = format("cifar_model_new.pkl")
 
 ###############数据加载与预处理
 transform = transforms.Compose([transforms.ToTensor(),#转为tensor

@@ -24,7 +24,7 @@ trainset=tv.datasets.CIFAR10(root='./cifar/train/',
                              transform=transform)
 
 trainloader=t.utils.data.DataLoader(trainset,
-                                    batch_size=4,
+                                    batch_size=64,
                                     shuffle=True,
                                     num_workers=0)
 #测试集
@@ -34,7 +34,7 @@ testset=tv.datasets.CIFAR10(root='./cifar/test/',
                              transform=transform)
 
 testloader=t.utils.data.DataLoader(testset,
-                                   batch_size=4,
+                                   batch_size=64,
                                    shuffle=True,
                                    num_workers=0)
 
@@ -124,9 +124,11 @@ def run_test():
 #     z = np.argmax(nd,axis=1)
 #     print(nd)
 
+s = trainloader.__len__()
+
 running_loss=0.0
 start_time = time.time()
-for epoch in range(2):
+for epoch in range(20):
 
     for i,data in enumerate(trainloader,0):
         #输入数据
@@ -143,9 +145,9 @@ for epoch in range(2):
         optimizer.step()
 
         # 打印log
-        running_loss += loss.data[0]
-        if i % 2000 == 1999:
-            print('[%d,%5d] loss:%.3f' % (epoch + 1, i + 1, running_loss / 2000))
+        running_loss += loss.item()
+        if i % 10 == 0 and i != 0:
+            print('[%d,%5d] loss:%.3f' % (epoch , i, running_loss / 10))
             run_test()
             running_loss = 0.0
 print('finished training')
