@@ -2,5 +2,8 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/pytorch/block_test" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/pytorch/cifar10_train_pytorch" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/pytorch/feature_match_test" vcs="Git" />
   </component>
 </project>
