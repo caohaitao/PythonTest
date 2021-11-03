@@ -16,7 +16,7 @@ transform = transforms.Compose([transforms.ToTensor(),#转为tensor
                                 transforms.Normalize((0.5,0.5,0.5),(0.5,0.5,0.5)),#归一化
                                 ])
 #训练集
-trainset=tv.datasets.CIFAR10(root='./cifar/train/',
+trainset=tv.datasets.CIFAR10(root='./cifar/test/',
                              train=True,
                              download=False,
                              transform=None)
@@ -27,5 +27,5 @@ classes=('plane','car','bird','cat','deer','dog','frog','horse','ship','truck')
 s = trainset.__len__()
 for i in range(s):
     (d,l) = trainset[i]
-    p = format("image\\%d.jpg"%(i))
+    p = format("image_test\\%d.jpg"%(i))
     d.save(p)
